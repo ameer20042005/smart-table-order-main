@@ -519,7 +519,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={topItems || []} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+              <BarChart data={topItems || []} margin={{ top: 20, right: 30, left: 60, bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis 
                   dataKey="name" 
@@ -528,7 +528,7 @@ const Dashboard = () => {
                   interval={0}
                   tick={{ fontSize: 12 }}
                 />
-                <YAxis />
+                <YAxis width={80} />
                 <Tooltip 
                   formatter={(value: any, name: string) => {
                     if (name === "الإيرادات (د.ع)" || name === "الأرباح (د.ع)") {
