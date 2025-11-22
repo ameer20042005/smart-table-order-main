@@ -27,9 +27,10 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { Plus, Clock, CheckCircle2, XCircle, Printer } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
+import { format } from "date-fns";
 
 const Orders = () => {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -113,6 +114,194 @@ const Orders = () => {
     );
   };
 
+  const printInvoice = (order: any) => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const invoiceHTML = `
+      <!DOCTYPE html>
+      <html dir="rtl">
+      <head>
+        <meta charset="UTF-8">
+        <title>فاتورة - ${order.id}</title>
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          body {
+            font-family: 'Arial', sans-serif;
+            padding: 20mm;
+            background: white;
+          }
+          .invoice {
+            max-width: 80mm;
+            margin: 0 auto;
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+          }
+          .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+          }
+          .header p {
+            font-size: 12px;
+            color: #666;
+          }
+          .info-section {
+            margin: 15px 0;
+            font-size: 13px;
+          }
+          .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+          }
+          .info-label {
+            font-weight: bold;
+          }
+          .items-section {
+            margin: 20px 0;
+          }
+          .items-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 10px;
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-size: 13px;
+          }
+          .item-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 5px 0;
+            font-size: 13px;
+          }
+          .totals {
+            margin-top: 20px;
+            border-top: 2px solid #000;
+            padding-top: 10px;
+          }
+          .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            font-size: 14px;
+          }
+          .total-row.final {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #000;
+          }
+          .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            border-top: 1px dashed #000;
+            padding-top: 10px;
+          }
+          .notes {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 5px;
+            font-size: 12px;
+          }
+          @media print {
+            body {
+              padding: 0;
+            }
+            .invoice {
+              max-width: 100%;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="invoice">
+          <div class="header">
+            <h1>نظام المطعم</h1>
+            <p>فاتورة مبيعات</p>
+          </div>
+          
+          <div class="info-section">
+            <div class="info-row">
+              <span class="info-label">رقم الفاتورة:</span>
+              <span>#${order.id.substring(0, 8).toUpperCase()}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">التاريخ:</span>
+              <span>${format(new Date(order.created_at), "yyyy-MM-dd HH:mm", { locale: ar })}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">الطاولة:</span>
+              <span>${order.restaurant_tables?.table_number ? `طاولة ${order.restaurant_tables.table_number}` : 'طلب توصيل'}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">الحالة:</span>
+              <span>${order.status === 'completed' ? 'مكتمل' : order.status === 'cancelled' ? 'ملغي' : 'قيد المعالجة'}</span>
+            </div>
+          </div>
+
+          <div class="items-section">
+            <div class="items-header">
+              <div>الصنف</div>
+              <div>الكمية</div>
+              <div>السعر</div>
+              <div>المجموع</div>
+            </div>
+            ${order.order_items?.map((item: any) => `
+              <div class="item-row">
+                <div>${item.menu_items?.name || 'غير محدد'}</div>
+                <div>${item.quantity}</div>
+                <div>${Number(item.unit_price).toFixed(2)}</div>
+                <div>${Number(item.subtotal).toFixed(2)}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          ${order.notes ? `
+          <div class="notes">
+            <strong>ملاحظات:</strong><br/>
+            ${order.notes}
+          </div>
+          ` : ''}
+
+          <div class="totals">
+            <div class="total-row final">
+              <span>الإجمالي:</span>
+              <span>${Number(order.total_amount).toFixed(2)} د.ع</span>
+            </div>
+          </div>
+
+          <div class="footer">
+            <p>شكراً لزيارتكم</p>
+            <p>نتمنى لكم تجربة ممتعة</p>
+          </div>
+        </div>
+        <script>
+          window.onload = function() {
+            window.print();
+          };
+        </script>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(invoiceHTML);
+    printWindow.document.close();
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -182,6 +371,15 @@ const Orders = () => {
                   )}
 
                   <div className="flex gap-2 pt-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => printInvoice(order)}
+                      className="gap-2"
+                    >
+                      <Printer className="h-4 w-4" />
+                      طباعة الفاتورة
+                    </Button>
                     <Select
                       value={order.status}
                       onValueChange={(value) =>

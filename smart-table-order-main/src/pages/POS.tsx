@@ -241,14 +241,26 @@ const POS = () => {
                 onClick={() => addToCart(item)}
               >
                 <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
+                  <div className="flex justify-between items-start gap-3">
+                    {item.image_url && (
+                      <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                        <img
+                          src={item.image_url}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
                       <CardTitle className="text-lg">{item.name}</CardTitle>
                       <CardDescription className="line-clamp-1">
                         {item.description}
                       </CardDescription>
                     </div>
-                    <div className="flex flex-col items-end gap-1">
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
                       <Badge>{Number(item.price).toFixed(2)} د.ع</Badge>
                       {item.stock_quantity <= 10 && (
                         <Badge variant="outline" className="text-xs border-orange-300 text-orange-600">

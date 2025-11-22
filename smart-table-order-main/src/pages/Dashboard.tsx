@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, UtensilsCrossed, ShoppingCart, DollarSign, TrendingUp, TrendingDown, Clock, Package, AlertCircle, Download } from "lucide-react";
+import { Users, UtensilsCrossed, ShoppingCart, DollarSign, TrendingUp, TrendingDown, Clock, Package, AlertCircle, Download, ExternalLink } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
 import { exportToExcel, exportToCSV } from "@/lib/export-utils";
@@ -58,8 +58,8 @@ const Dashboard = () => {
           .from("orders")
           .select("id, total_amount")
           .eq("status", "completed")
-          .gte("completed_at", start.toISOString())
-          .lte("completed_at", end.toISOString()),
+          .gte("created_at", start.toISOString())
+          .lte("created_at", end.toISOString()),
       ]);
 
       const availableTables = tablesRes.data?.filter(t => t.status === "available").length || 0;
@@ -121,8 +121,8 @@ const Dashboard = () => {
         .from("orders")
         .select("id")
         .eq("status", "completed")
-        .gte("completed_at", start.toISOString())
-        .lte("completed_at", end.toISOString());
+        .gte("created_at", start.toISOString())
+        .lte("created_at", end.toISOString());
 
       if (!completedOrders?.length) return [];
 
@@ -260,8 +260,8 @@ const Dashboard = () => {
           .from("orders")
           .select("id, total_amount")
           .eq("status", "completed")
-          .gte("completed_at", dayStart.toISOString())
-          .lte("completed_at", dayEnd.toISOString());
+          .gte("created_at", dayStart.toISOString())
+          .lte("created_at", dayEnd.toISOString());
 
         let revenue = 0;
         let totalCost = 0;

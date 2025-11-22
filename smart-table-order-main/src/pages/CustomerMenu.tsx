@@ -211,49 +211,50 @@ const CustomerMenu = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">جاري تحميل القائمة...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-stone-600 mx-auto"></div>
+          <p className="mt-4 text-stone-400">جاري تحميل القائمة...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
+    <div className="min-h-screen bg-gray-900" dir="rtl">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-black/40 backdrop-blur-md shadow-lg sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate("/")}
+              className="text-stone-300 hover:text-white hover:bg-stone-700/50"
             >
               <Home className="h-5 w-5" />
             </Button>
-            <h1 className="text-xl font-bold">قائمة الطعام</h1>
+            <h1 className="text-xl font-bold text-stone-100">قائمة الطعام</h1>
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="relative">
+                <Button size="icon" className="relative bg-stone-800/50 border border-stone-600 text-stone-200 hover:text-white hover:bg-stone-700 hover:border-stone-500">
                   <ShoppingCart className="h-5 w-5" />
                   {getTotalItems() > 0 && (
-                    <Badge className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center bg-orange-600">
+                    <Badge className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center bg-gradient-to-r from-stone-700 to-stone-800 text-white border-0">
                       {getTotalItems()}
                     </Badge>
                   )}
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-full sm:max-w-lg">
+              <SheetContent side="left" className="w-full sm:max-w-lg bg-gray-900 text-stone-200 border-stone-800">
                 <SheetHeader>
                   <SheetTitle>سلة المشتريات</SheetTitle>
                 </SheetHeader>
                 <div className="mt-6 space-y-4">
                   {cart.length === 0 ? (
                     <div className="text-center py-12">
-                      <ShoppingCart className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-                      <p className="text-gray-500">السلة فارغة</p>
+                      <ShoppingCart className="h-16 w-16 mx-auto text-stone-600 mb-4" />
+                      <p className="text-stone-400">السلة فارغة</p>
                     </div>
                   ) : (
                     <>
@@ -276,12 +277,12 @@ const CustomerMenu = () => {
                                       variant="ghost"
                                       size="icon"
                                       onClick={() => removeFromCart(item.id)}
-                                      className="h-6 w-6"
+                                      className="h-6 w-6 text-stone-400 hover:text-white hover:bg-stone-700/50"
                                     >
                                       <X className="h-4 w-4" />
                                     </Button>
                                   </div>
-                                  <p className="text-sm text-orange-600 font-semibold">
+                                  <p className="text-sm text-stone-400 font-semibold">
                                     {item.price.toFixed(2)} د.ع
                                   </p>
                                   <div className="flex items-center gap-2 mt-2">
@@ -289,7 +290,7 @@ const CustomerMenu = () => {
                                       variant="outline"
                                       size="icon"
                                       onClick={() => updateQuantity(item.id, -1)}
-                                      className="h-8 w-8"
+                                      className="h-8 w-8 border-stone-600 text-stone-300 hover:text-white hover:bg-stone-700/50"
                                     >
                                       <Minus className="h-4 w-4" />
                                     </Button>
@@ -300,7 +301,7 @@ const CustomerMenu = () => {
                                       variant="outline"
                                       size="icon"
                                       onClick={() => updateQuantity(item.id, 1)}
-                                      className="h-8 w-8"
+                                      className="h-8 w-8 border-stone-600 text-stone-300 hover:text-white hover:bg-stone-700/50"
                                     >
                                       <Plus className="h-4 w-4" />
                                     </Button>
@@ -311,15 +312,15 @@ const CustomerMenu = () => {
                           </Card>
                         ))}
                       </div>
-                      <div className="border-t pt-4">
+                      <div className="border-t border-stone-700 pt-4">
                         <div className="flex justify-between items-center mb-4">
-                          <span className="text-lg font-semibold">المجموع:</span>
-                          <span className="text-2xl font-bold text-orange-600">
+                          <span className="text-lg font-semibold text-stone-200">المجموع:</span>
+                          <span className="text-2xl font-bold text-stone-200">
                             {getTotalPrice().toFixed(2)} د.ع
                           </span>
                         </div>
                         <Button
-                          className="w-full bg-orange-600 hover:bg-orange-700"
+                          className="w-full bg-gradient-to-r from-stone-700 to-stone-800 hover:from-stone-600 hover:to-stone-700 text-white"
                           size="lg"
                           onClick={handleCheckout}
                         >
@@ -336,12 +337,12 @@ const CustomerMenu = () => {
           {/* Search */}
           <div className="mt-4">
             <div className="relative">
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-stone-400" />
               <Input
                 placeholder="ابحث عن صنف..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pr-10"
+                className="pr-10 bg-black/40 border-stone-600 text-stone-200 placeholder:text-stone-500"
               />
             </div>
           </div>
@@ -349,15 +350,16 @@ const CustomerMenu = () => {
       </header>
 
       {/* Categories */}
-      <div className="bg-white border-b">
+      <div className="bg-black/40 backdrop-blur-md border-b border-stone-800">
         <div className="container mx-auto px-4 py-3">
           <div className="flex gap-2 overflow-x-auto pb-2">
             {categories.map(category => (
               <Button
                 key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
                 onClick={() => setSelectedCategory(category)}
-                className={selectedCategory === category ? "bg-orange-600 hover:bg-orange-700" : ""}
+                className={selectedCategory === category 
+                  ? "bg-gradient-to-r from-stone-700 to-stone-800 text-white hover:from-stone-600 hover:to-stone-700 border-0" 
+                  : "bg-stone-800/50 border-stone-600 text-stone-200 hover:text-white hover:bg-stone-700 hover:border-stone-500"}
               >
                 {category === "all" ? "الكل" : category}
               </Button>
@@ -370,7 +372,7 @@ const CustomerMenu = () => {
       <main className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredItems?.map(item => (
-            <Card key={item.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-orange-200">
+            <Card key={item.id} className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-stone-800 bg-black/40 backdrop-blur-md hover:scale-105 hover:-translate-y-2">
               {item.image_url && (
                 <div className="aspect-video overflow-hidden relative group">
                   <img
@@ -392,8 +394,8 @@ const CustomerMenu = () => {
                 </div>
               )}
               {!item.image_url && (
-                <div className="aspect-video bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center">
-                  <div className="text-center text-gray-400">
+                <div className="aspect-video bg-gradient-to-br from-stone-800 to-stone-900 flex items-center justify-center">
+                  <div className="text-center text-stone-500">
                     <svg className="w-16 h-16 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
@@ -402,20 +404,20 @@ const CustomerMenu = () => {
                 </div>
               )}
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg line-clamp-1">{item.name}</CardTitle>
+                <CardTitle className="text-lg line-clamp-1 text-stone-100">{item.name}</CardTitle>
                 {item.description && (
-                  <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+                  <p className="text-sm text-stone-400 line-clamp-2 mt-1">
                     {item.description}
                   </p>
                 )}
               </CardHeader>
               <CardFooter className="flex justify-between items-center pt-0">
-                <span className="text-xl font-bold text-orange-600">
+                <span className="text-xl font-bold text-stone-300">
                   {item.price.toFixed(2)} د.ع
                 </span>
                 <Button
                   onClick={() => addToCart(item)}
-                  className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
+                  className="bg-gradient-to-r from-stone-700 to-stone-800 text-white hover:from-stone-600 hover:to-stone-700 hover:scale-105 transition-transform"
                   disabled={item.stock_quantity === 0}
                 >
                   {item.stock_quantity === 0 ? (
@@ -434,14 +436,14 @@ const CustomerMenu = () => {
         
         {filteredItems?.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500">لا توجد أصناف متاحة</p>
+            <p className="text-stone-400">لا توجد أصناف متاحة</p>
           </div>
         )}
       </main>
 
       {/* Checkout Dialog */}
       <Dialog open={showCheckoutDialog} onOpenChange={setShowCheckoutDialog}>
-        <DialogContent dir="rtl">
+        <DialogContent dir="rtl" className="bg-gray-900 text-stone-200 border-stone-800">
           <DialogHeader>
             <DialogTitle>تأكيد الطلب</DialogTitle>
             <DialogDescription>
@@ -481,22 +483,23 @@ const CustomerMenu = () => {
                   size="icon"
                   onClick={handleScanBarcode}
                   title="مسح باركود الطاولة"
+                  className="border-stone-600 text-stone-300 hover:text-white hover:bg-stone-700/50"
                 >
                   <Camera className="h-4 w-4" />
                 </Button>
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-stone-500">
                 اختر الطاولة من القائمة أو اضغط على أيقونة الكاميرا لمسح الباركود
               </p>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+            <div className="bg-black/40 border border-stone-700 p-4 rounded-lg space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-600">عدد الأصناف:</span>
-                <span className="font-semibold">{getTotalItems()}</span>
+                <span className="text-stone-400">عدد الأصناف:</span>
+                <span className="font-semibold text-stone-200">{getTotalItems()}</span>
               </div>
               <div className="flex justify-between text-lg">
-                <span className="text-gray-600">المجموع الكلي:</span>
-                <span className="font-bold text-orange-600">{getTotalPrice().toFixed(2)} د.ع</span>
+                <span className="text-stone-400">المجموع الكلي:</span>
+                <span className="font-bold text-stone-200">{getTotalPrice().toFixed(2)} د.ع</span>
               </div>
             </div>
           </div>
@@ -505,13 +508,14 @@ const CustomerMenu = () => {
               variant="outline"
               onClick={() => setShowCheckoutDialog(false)}
               disabled={isSubmitting}
+              className="border-stone-600 text-stone-300 hover:bg-stone-700/50"
             >
               إلغاء
             </Button>
             <Button
               onClick={confirmOrder}
               disabled={isSubmitting || !tableNumber}
-              className="bg-orange-600 hover:bg-orange-700"
+              className="bg-gradient-to-r from-stone-700 to-stone-800 hover:from-stone-600 hover:to-stone-700 text-white"
             >
               {isSubmitting ? "جاري التأكيد..." : "تأكيد الطلب"}
             </Button>

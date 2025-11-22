@@ -35,6 +35,8 @@ const Layout = ({ children }: LayoutProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
+  const [clickTimer, setClickTimer] = useState<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -71,12 +73,39 @@ const Layout = ({ children }: LayoutProps) => {
     navigate("/auth");
   };
 
+  const handleLogoClick = () => {
+    // Clear existing timer if any
+    if (clickTimer) {
+      clearTimeout(clickTimer);
+    }
+
+    const newCount = clickCount + 1;
+    setClickCount(newCount);
+
+    if (newCount === 7) {
+      // Perform logout and clear session
+      handleLogout();
+      setClickCount(0);
+      toast({
+        title: "تسجيل الخروج",
+        description: "تم تسجيل الخروج بنجاح بعد 7 نقرات",
+      });
+    } else {
+      // Reset counter after 2 seconds of inactivity
+      const timer = setTimeout(() => {
+        setClickCount(0);
+      }, 2000);
+      setClickTimer(timer);
+    }
+  };
+
   const navItems = [
     { path: "/dashboard", icon: LayoutDashboard, label: "لوحة التحكم" },
     { path: "/tables", icon: Users, label: "الطاولات" },
     { path: "/menu", icon: UtensilsCrossed, label: "قائمة الطعام" },
     { path: "/orders", icon: ShoppingCart, label: "الطلبات" },
     { path: "/pos", icon: Receipt, label: "نقطة البيع" },
+    { path: "/", icon: Store, label: "صفحة الزبون" },
   ];
 
   const NavContent = () => (
@@ -104,7 +133,10 @@ const Layout = ({ children }: LayoutProps) => {
     <div className="flex h-screen overflow-hidden bg-background" dir="rtl">
       {/* Sidebar for desktop */}
       <aside className="hidden md:flex w-64 flex-col border-l border-border bg-card">
-        <div className="flex h-16 items-center justify-center border-b border-border px-6">
+        <div 
+          className="flex h-16 items-center justify-center border-b border-border px-6 cursor-pointer hover:bg-muted/50 transition-colors"
+          onClick={handleLogoClick}
+        >
           <div className="flex items-center gap-2">
             <Store className="h-6 w-6 text-primary" />
             <span className="text-xl font-bold">نظام المطعم</span>
@@ -151,7 +183,10 @@ const Layout = ({ children }: LayoutProps) => {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-64 p-0">
-              <div className="flex h-16 items-center justify-center border-b border-border px-6">
+              <div 
+                className="flex h-16 items-center justify-center border-b border-border px-6 cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={handleLogoClick}
+              >
                 <div className="flex items-center gap-2">
                   <Store className="h-6 w-6 text-primary" />
                   <span className="text-xl font-bold">نظام المطعم</span>
@@ -162,7 +197,10 @@ const Layout = ({ children }: LayoutProps) => {
               </div>
             </SheetContent>
           </Sheet>
-          <div className="flex-1 text-center">
+          <div 
+            className="flex-1 text-center cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={handleLogoClick}
+          >
             <span className="text-lg font-bold">نظام المطعم</span>
           </div>
           <DropdownMenu>

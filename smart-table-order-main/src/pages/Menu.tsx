@@ -24,12 +24,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Barcode, Edit } from "lucide-react";
+import { Plus, Trash2, Barcode, Edit, PackagePlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ImageUpload } from "@/components/ImageUpload";
 
 const Menu = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAddStockDialogOpen, setIsAddStockDialogOpen] = useState(false);
+  const [selectedItemForStock, setSelectedItemForStock] = useState<any>(null);
+  const [addStockQuantity, setAddStockQuantity] = useState("");
   const [editingItem, setEditingItem] = useState<any>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -147,6 +150,48 @@ const Menu = () => {
     },
   });
 
+  const addStockMutation = useMutation({
+    mutationFn: async ({ id, quantityToAdd }: { id: string; quantityToAdd: number }) => {
+      // First get current stock
+      const { data: currentItem, error: fetchError } = await supabase
+        .from("menu_items")
+        .select("stock_quantity")
+        .eq("id", id)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const newQuantity = (currentItem.stock_quantity || 0) + quantityToAdd;
+
+      const { data, error } = await supabase
+        .from("menu_items")
+        .update({ stock_quantity: newQuantity })
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["menu-items"] });
+      toast({
+        title: "تم إضافة الكمية",
+        description: "تم إضافة الكمية إلى المخزون بنجاح",
+      });
+      setIsAddStockDialogOpen(false);
+      setSelectedItemForStock(null);
+      setAddStockQuantity("");
+    },
+    onError: (error: any) => {
+      toast({
+        title: "خطأ",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const resetForm = () => {
     setName("");
     setDescription("");
@@ -170,6 +215,31 @@ const Menu = () => {
     setIsAvailable(item.is_available);
     setImageUrl(item.image_url || "");
     setIsDialogOpen(true);
+  };
+
+  const handleOpenAddStock = (item: any) => {
+    setSelectedItemForStock(item);
+    setAddStockQuantity("");
+    setIsAddStockDialogOpen(true);
+  };
+
+  const handleAddStock = () => {
+    if (!selectedItemForStock || !addStockQuantity) return;
+    
+    const quantity = parseInt(addStockQuantity);
+    if (quantity <= 0) {
+      toast({
+        title: "خطأ",
+        description: "الكمية يجب أن تكون أكبر من صفر",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    addStockMutation.mutate({
+      id: selectedItemForStock.id,
+      quantityToAdd: quantity,
+    });
   };
 
   const handleCreateItem = () => {
@@ -449,6 +519,15 @@ const Menu = () => {
                       <Button
                         variant="ghost"
                         size="icon"
+                        className="hover:bg-blue-50 hover:text-blue-600"
+                        onClick={() => handleOpenAddStock(item)}
+                        title="إضافة كمية"
+                      >
+                        <PackagePlus className="h-4 w-4 text-blue-500" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="hover:bg-orange-50 hover:text-orange-600"
                         onClick={() => handleEditItem(item)}
                       >
@@ -503,6 +582,68 @@ const Menu = () => {
             ))}
           </div>
         )}
+
+        {/* Dialog for adding stock */}
+        <Dialog open={isAddStockDialogOpen} onOpenChange={setIsAddStockDialogOpen}>
+          <DialogContent dir="rtl">
+            <DialogHeader>
+              <DialogTitle>إضافة كمية للمخزون</DialogTitle>
+              <DialogDescription>
+                إضافة كمية جديدة إلى مخزون: {selectedItemForStock?.name}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">الكمية الحالية:</span>
+                  <span className="text-xl font-bold text-blue-600">
+                    {selectedItemForStock?.stock_quantity || 0}
+                  </span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="add-quantity">الكمية المراد إضافتها</Label>
+                <Input
+                  id="add-quantity"
+                  type="number"
+                  min="1"
+                  placeholder="أدخل الكمية"
+                  value={addStockQuantity}
+                  onChange={(e) => setAddStockQuantity(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleAddStock();
+                    }
+                  }}
+                />
+              </div>
+              {addStockQuantity && (
+                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">الكمية بعد الإضافة:</span>
+                    <span className="text-xl font-bold text-green-600">
+                      {(selectedItemForStock?.stock_quantity || 0) + parseInt(addStockQuantity || "0")}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsAddStockDialogOpen(false)}
+              >
+                إلغاء
+              </Button>
+              <Button
+                onClick={handleAddStock}
+                disabled={!addStockQuantity || parseInt(addStockQuantity) <= 0 || addStockMutation.isPending}
+              >
+                إضافة
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
