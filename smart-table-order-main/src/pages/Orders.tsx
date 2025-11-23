@@ -75,8 +75,9 @@ const Orders = () => {
 
       if (orderError) throw orderError;
 
-      // If status is completed or cancelled, make the table available again
-      if ((status === "completed" || status === "cancelled") && orderData?.table_id) {
+      // If status is cancelled, make the table available again
+      // Do NOT change table status for "completed" - payment page will handle it
+      if (status === "cancelled" && orderData?.table_id) {
         const { error: tableError } = await supabase
           .from("restaurant_tables")
           .update({ status: "available" })
@@ -391,8 +392,8 @@ const Orders = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="preparing">قيد التحضير</SelectItem>
+                        <SelectItem value="ready">جاهز</SelectItem>
                         <SelectItem value="served">تم التقديم</SelectItem>
-                        <SelectItem value="completed">مكتمل</SelectItem>
                         <SelectItem value="cancelled">ملغي</SelectItem>
                       </SelectContent>
                     </Select>
