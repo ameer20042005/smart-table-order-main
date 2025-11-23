@@ -391,6 +391,7 @@ const Orders = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="pending">قيد الانتظار</SelectItem>
                         <SelectItem value="preparing">قيد التحضير</SelectItem>
                         <SelectItem value="ready">جاهز</SelectItem>
                         <SelectItem value="served">تم التقديم</SelectItem>
