@@ -272,10 +272,38 @@ export type Database = {
         }
         Relationships: []
       }
+      halls: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       restaurant_tables: {
         Row: {
           capacity: number
           created_at: string | null
+          hall_id: string | null
           id: string
           qr_code: string | null
           status: Database["public"]["Enums"]["table_status"] | null
@@ -285,6 +313,7 @@ export type Database = {
         Insert: {
           capacity?: number
           created_at?: string | null
+          hall_id?: string | null
           id?: string
           qr_code?: string | null
           status?: Database["public"]["Enums"]["table_status"] | null
@@ -294,13 +323,22 @@ export type Database = {
         Update: {
           capacity?: number
           created_at?: string | null
+          hall_id?: string | null
           id?: string
           qr_code?: string | null
           status?: Database["public"]["Enums"]["table_status"] | null
           table_number?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_tables_hall_id_fkey"
+            columns: ["hall_id"]
+            isOneToOne: false
+            referencedRelation: "halls"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

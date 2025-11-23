@@ -13,6 +13,8 @@ import {
   LogOut,
   Menu,
   Store,
+  PlusCircle,
+  CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,21 +43,21 @@ const Layout = ({ children }: LayoutProps) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (!session) {
-          navigate("/auth");
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      if (!session) {
+        navigate("/auth");
       }
-    );
+    });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (!session) {
         navigate("/auth");
       }
@@ -103,8 +105,9 @@ const Layout = ({ children }: LayoutProps) => {
     { path: "/dashboard", icon: LayoutDashboard, label: "لوحة التحكم" },
     { path: "/tables", icon: Users, label: "الطاولات" },
     { path: "/menu", icon: UtensilsCrossed, label: "قائمة الطعام" },
-    { path: "/orders", icon: ShoppingCart, label: "الطلبات" },
-    { path: "/pos", icon: Receipt, label: "نقطة البيع" },
+    { path: "/orders", icon: ShoppingCart, label: "جميع الطلبات" },
+    { path: "/add-order", icon: PlusCircle, label: "إضافة طلب" },
+    { path: "/payment", icon: CreditCard, label: "دفع الحساب" },
     { path: "/", icon: Store, label: "صفحة الزبون" },
   ];
 
@@ -133,7 +136,7 @@ const Layout = ({ children }: LayoutProps) => {
     <div className="flex h-screen overflow-hidden bg-background" dir="rtl">
       {/* Sidebar for desktop */}
       <aside className="hidden md:flex w-64 flex-col border-l border-border bg-card">
-        <div 
+        <div
           className="flex h-16 items-center justify-center border-b border-border px-6 cursor-pointer hover:bg-muted/50 transition-colors"
           onClick={handleLogoClick}
         >
@@ -183,7 +186,7 @@ const Layout = ({ children }: LayoutProps) => {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-64 p-0">
-              <div 
+              <div
                 className="flex h-16 items-center justify-center border-b border-border px-6 cursor-pointer hover:bg-muted/50 transition-colors"
                 onClick={handleLogoClick}
               >
@@ -197,7 +200,7 @@ const Layout = ({ children }: LayoutProps) => {
               </div>
             </SheetContent>
           </Sheet>
-          <div 
+          <div
             className="flex-1 text-center cursor-pointer hover:opacity-80 transition-opacity"
             onClick={handleLogoClick}
           >
@@ -225,9 +228,7 @@ const Layout = ({ children }: LayoutProps) => {
         </header>
 
         {/* Main content */}
-        <main className="flex-1 overflow-auto p-6">
-          {children}
-        </main>
+        <main className="flex-1 overflow-auto p-6">{children}</main>
       </div>
     </div>
   );

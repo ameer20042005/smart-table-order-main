@@ -10,6 +10,7 @@ export interface Table {
   qr_code: string | null;
   capacity: number;
   status: TableStatus;
+  hall_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -22,7 +23,15 @@ export const useTables = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('restaurant_tables')
-        .select('*')
+        .select(`
+          *,
+          halls (
+            id,
+            name,
+            description,
+            is_active
+          )
+        `)
         .order('table_number');
       
       if (error) throw error;

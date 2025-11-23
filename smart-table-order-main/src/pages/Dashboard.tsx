@@ -185,7 +185,7 @@ const Dashboard = () => {
           restaurant_tables(table_number)
         `)
         .order("created_at", { ascending: false })
-        .limit(5);
+        .limit(15);
 
       return data;
     },
@@ -327,8 +327,28 @@ const Dashboard = () => {
     }
   };
 
-  const handleExportDailyOrders = async () => {
-    const today = new Date();
+  const handleExportOrders = async (period: "today" | "week" | "month") => {
+    const now = new Date();
+    let start: Date, end: Date, periodName: string;
+    
+    switch (period) {
+      case "today":
+        start = startOfDay(now);
+        end = endOfDay(now);
+        periodName = "اليوم";
+        break;
+      case "week":
+        start = startOfDay(subDays(now, 7));
+        end = endOfDay(now);
+        periodName = "الأسبوع";
+        break;
+      case "month":
+        start = startOfMonth(now);
+        end = endOfMonth(now);
+        periodName = "الشهر";
+        break;
+    }
+
     const { data: completedOrders } = await supabase
       .from("orders")
       .select(`
@@ -337,15 +357,15 @@ const Dashboard = () => {
         completed_at,
         total_amount,
         table_id,
-        restaurant_tables(table_number)
+        restaurant_tables(table_number, halls(name))
       `)
       .eq("status", "completed")
-      .gte("created_at", startOfDay(today).toISOString())
-      .lte("created_at", endOfDay(today).toISOString())
+      .gte("created_at", start.toISOString())
+      .lte("created_at", end.toISOString())
       .order("created_at", { ascending: false });
 
     if (!completedOrders?.length) {
-      alert("لا توجد طلبات مكتملة اليوم");
+      alert(`لا توجد طلبات مكتملة في ${periodName}`);
       return;
     }
 
@@ -372,10 +392,11 @@ const Dashboard = () => {
         const profit = Number(order.total_amount) - totalCost;
 
         return {
-          "رقم الطلب": order.id,
+          "رقم الطلب": order.id.substring(0, 8),
           "التاريخ والوقت": format(new Date(order.created_at), "PPp", { locale: ar }),
           "نوع الطلب": order.table_id ? "صالة" : "توصيل",
           "الطاولة": order.restaurant_tables?.table_number || "-",
+          "الصالة": order.restaurant_tables?.halls?.name || "-",
           "الأصناف": itemsText,
           "الإيرادات (د.ع)": Number(order.total_amount).toFixed(2),
           "التكاليف (د.ع)": totalCost.toFixed(2),
@@ -384,7 +405,7 @@ const Dashboard = () => {
       })
     );
 
-    const fileName = `طلبات_اليوم_${format(today, "yyyy-MM-dd")}`;
+    const fileName = `طلبات_${periodName}_${format(now, "yyyy-MM-dd")}`;
     exportToExcel(ordersWithDetails, fileName);
   };
 
@@ -408,9 +429,17 @@ const Dashboard = () => {
                 <SelectItem value="year">سنة</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" onClick={handleExportDailyOrders}>
+            <Button variant="outline" onClick={() => handleExportOrders("today")}>
               <Download className="h-4 w-4 ml-2" />
               طلبات اليوم
+            </Button>
+            <Button variant="outline" onClick={() => handleExportOrders("week")}>
+              <Download className="h-4 w-4 ml-2" />
+              طلبات الأسبوع
+            </Button>
+            <Button variant="outline" onClick={() => handleExportOrders("month")}>
+              <Download className="h-4 w-4 ml-2" />
+              طلبات الشهر
             </Button>
             <Button variant="outline" onClick={() => handleExport("excel")}>
               <Download className="h-4 w-4 ml-2" />
@@ -487,7 +516,7 @@ const Dashboard = () => {
               <CardTitle>الطلبات الأخيرة</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-3 max-h-[350px] overflow-y-auto pr-2">
                 {recentOrders?.map((order: any) => (
                   <div key={order.id} className="flex justify-between items-center border-b pb-2">
                     <div>
